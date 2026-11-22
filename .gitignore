@@ -1,0 +1,15 @@
+# Build output
+bin/
+obj/
+dist/
+TestResults/
+
+# Editors and IDEs
+.vs/
+.vscode/
+.idea/
+*.user
+
+# Runtime data: never commit real library records
+library.json
+*.tmp
