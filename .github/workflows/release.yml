@@ -1,0 +1,39 @@
+name: Release
+
+# Runs when you push a tag such as v1.0.0
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rid: [linux-x64, win-x64]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Publish single-file executable
+        run: >
+          dotnet publish src/LibraryManagement -c Release -r ${{ matrix.rid }}
+          --self-contained true -p:PublishSingleFile=true -o publish/${{ matrix.rid }}
+
+      - name: Package
+        run: |
+          mkdir -p dist
+          cd publish/${{ matrix.rid }}
+          zip -r ../../dist/library-${{ github.ref_name }}-${{ matrix.rid }}.zip .
+
+      - name: Attach to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
+          generate_release_notes: true
